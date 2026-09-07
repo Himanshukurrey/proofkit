@@ -1,22 +1,23 @@
-"""Implementation of `proofkit capture`.
-
-Current stage: builds the manifest and prints it as JSON. Packaging it
-into a real `.proof` zip archive lands next (see PLAN.md, Day 3) —
-`output_path` is accepted now so the CLI surface doesn't change later,
-but it isn't written to yet.
-"""
-import json
+"""Implementation of `proofkit capture`: run a command, build its manifest,
+and package everything into a portable .proof archive."""
 import os
 import sys
+from datetime import datetime
 from typing import List, Optional
 
 import click
 
 from proofkit.gitinfo import collect_git_info
 from proofkit.manifest import build_manifest
+from proofkit.packaging import write_proof_archive
 from proofkit.platforminfo import collect_platform_info
 from proofkit.redact import redact_env
 from proofkit.runner import run_command
+
+
+def _default_output_path() -> str:
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return f"proof-{timestamp}.proof"
 
 
 def run_capture(
@@ -46,7 +47,7 @@ def run_capture(
         safe_env, redacted_keys = redact_env(dict(os.environ))
         env_vars = safe_env
 
-    manifest = build_manifest(
+    manifest, stdout_for_archive, stderr_for_archive = build_manifest(
         execution=execution,
         platform_info=platform_info,
         git_info=git_info,
@@ -55,6 +56,9 @@ def run_capture(
         redacted_keys=redacted_keys,
         note=note,
     )
+
+    final_output_path = output_path or _default_output_path()
+    write_proof_archive(final_output_path, manifest, stdout_for_archive, stderr_for_archive)
 
     click.echo()
     click.echo(f"Exit code:  {execution.exit_code}")
@@ -68,12 +72,4 @@ def run_capture(
         click.echo(f"Redacted:   {len(redacted_keys)} env var(s) by name pattern")
 
     click.echo()
-    click.secho("Manifest (packaging into a .proof archive lands next):", dim=True)
-    click.echo(json.dumps(manifest, indent=2))
-
-    if output_path:
-        click.secho(
-            f"\nNote: -o/--output ({output_path}) is accepted but not used yet — "
-            "artifact packaging isn't implemented.",
-            fg="yellow",
-        )
+    click.secho(f"Wrote {final_output_path}", fg="green")

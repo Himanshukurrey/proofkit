@@ -46,8 +46,13 @@ def build_manifest(
     env_vars: Dict[str, str],
     redacted_keys: List[str],
     note: Optional[str] = None,
-) -> Dict[str, Any]:
-    """Assemble the manifest dict matching the schema documented in PLAN.md."""
+) -> tuple:
+    """Assemble the manifest dict matching the schema documented in PLAN.md.
+
+    Returns (manifest, stdout, stderr) — the stdout/stderr are the
+    *truncated* versions that the manifest's hashes/sizes describe, so
+    callers writing a .proof archive store exactly what was hashed.
+    """
     stdout, stdout_truncated = _truncate(execution.stdout)
     stderr, stderr_truncated = _truncate(execution.stderr)
 
@@ -82,4 +87,4 @@ def build_manifest(
     }
     if note:
         manifest["note"] = note
-    return manifest
+    return manifest, stdout, stderr
