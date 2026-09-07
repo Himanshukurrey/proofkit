@@ -137,6 +137,21 @@ gh release create v0.1.0 --generate-notes
 ```
 Alternative: create as `--private` through day 6, flip to public (`gh repo edit --visibility public`) right before tagging the release, if a public WIP history isn't wanted.
 
+**Repo was created private on day 1, per that alternative.** Branch protection on `main` (require PR + 1 approval before merge, admins can bypass) was attempted immediately but **GitHub blocks branch protection on private repos on the free plan** — it only becomes available once the repo is public (or on a paid plan). Contribution scaffolding (`.github/PULL_REQUEST_TEMPLATE.md`, `CONTRIBUTING.md`) is already in place; the actual protection rule must be applied via API right after flipping to public:
+```bash
+gh repo edit Himanshukurrey/proofkit --visibility public
+gh api -X PUT repos/Himanshukurrey/proofkit/branches/main/protection \
+  -H "Accept: application/vnd.github+json" \
+  -f "required_status_checks=null" \
+  -F "enforce_admins=false" \
+  -f "required_pull_request_reviews[required_approving_review_count]=1" \
+  -f "required_pull_request_reviews[dismiss_stale_reviews]=true" \
+  -F "restrictions=null" \
+  -F "allow_force_pushes=false" \
+  -F "allow_deletions=false"
+```
+`enforce_admins=false` means the repo owner can still push/merge directly if needed; external contributors are forced through PR + review.
+
 ## Demo Scenario
 
 A genuine off-by-one bug, small enough for the README, that crashes cleanly (nonzero exit) so exit-code comparison is the clean primary signal:
