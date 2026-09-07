@@ -32,25 +32,35 @@ def _sha256(text: str) -> str:
 
 def extract_stderr_signature(stderr: str) -> Optional[str]:
     """Return the `SomeError: message` line of a traceback, scanning from the
-    end of stderr. Handles two different conventions:
+    end of stderr. Handles conventions found by testing against real output:
 
     - Python: the error line IS the last line (e.g. `IndexError: ...`).
     - Node/JS (and others): the error line is followed by indented `at ...`
       stack-frame lines and a trailing runtime footer.
+    - Node's AssertionError (and other errors with extra own properties,
+      the shape `expect(x).toBe(y)` failures take in Jest/Vitest) additionally
+      appends a non-indented `{ ...properties... }` object dump *after* the
+      stack frames — its lone closing `}` isn't indented, so the "skip
+      indented lines" rule alone doesn't filter it out.
 
-    So: skip empty lines, skip known footer lines, skip lines that are
-    indented (stack-frame continuations in both conventions are indented;
-    the actual error line is not) — return the first line left standing.
-    This is a heuristic tuned against Python and Node's actual output
-    (verified manually against both demos), not a general parser for every
-    language's error format."""
+    So: skip empty lines, skip known footer lines, skip indented lines
+    (stack-frame continuations), and require the remaining candidate to
+    contain a colon (every convention above uses `SomeError: message` or
+    `panic: message` — a bare `{`/`}` from a property dump has none) —
+    return the first line left standing. This is a heuristic tuned against
+    real output (Python, Node, and Node's assertion-error shape used by
+    Jest/Vitest), not a general parser for every language's error format;
+    an error whose message genuinely has no colon (rare) will fall through
+    to None rather than risk returning the wrong line."""
     for line in reversed(stderr.splitlines()):
         if not line.strip():
             continue
         if line[0].isspace():
-            continue  # indented stack-frame line, not the error message itself
+            continue  # indented stack-frame / object-dump-property line
         if any(pattern.match(line.strip()) for pattern in _IGNORED_TRAILING_PATTERNS):
             continue
+        if ":" not in line:
+            continue  # e.g. a lone '{' or '}' closing a trailing property dump
         return line.strip()
     return None
 

@@ -25,6 +25,28 @@ TypeError: Cannot read properties of undefined (reading 'toFixed')
 Node.js v26.8.1
 """
 
+# Node's AssertionError (the shape a failing Jest/Vitest `expect(x).toBe(y)`
+# assertion takes) appends a non-indented `{ ...properties... }` dump after
+# the stack frames. Its lone closing `}` isn't indented, so it isn't caught
+# by the "skip indented lines" rule alone — this is a real bug found by
+# testing proofkit against a frontend-style unit-test failure.
+NODE_ASSERTION_STDERR = """AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'$10.5' !== '$10.50'
+
+    at Object.<anonymous> (/path/assert-bug.js:6:8)
+    at node:internal/main/run_main_module:33:47 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: '$10.5',
+  expected: '$10.50',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v26.8.1
+"""
+
 
 def test_extract_signature_from_python_traceback():
     assert extract_stderr_signature(PYTHON_STDERR) == "IndexError: list index out of range"
@@ -34,6 +56,13 @@ def test_extract_signature_from_node_traceback_skips_stack_frames_and_footer():
     assert (
         extract_stderr_signature(NODE_STDERR)
         == "TypeError: Cannot read properties of undefined (reading 'toFixed')"
+    )
+
+
+def test_extract_signature_from_node_assertion_error_skips_trailing_property_dump():
+    assert (
+        extract_stderr_signature(NODE_ASSERTION_STDERR)
+        == "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:"
     )
 
 
