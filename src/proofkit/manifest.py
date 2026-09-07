@@ -1,5 +1,6 @@
 """Build and serialize the proof manifest — the JSON record inside a .proof archive."""
 import hashlib
+import re
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
@@ -14,19 +15,43 @@ from proofkit.runner import ExecutionResult
 # scope for v1 — see PLAN.md.
 MAX_CAPTURED_BYTES = 10 * 1024 * 1024  # 10MB
 
+# Known runtime "footer" lines that follow the real error line and would
+# otherwise be mistaken for the signature. Discovered by actually running
+# the Node.js demo: Node prints "Node.js vX.Y.Z" as the last line after an
+# uncaught exception's stack trace. Add more here as other runtimes'
+# quirks are found — this is a known, incomplete list, not a general
+# solution (see PLAN.md's limitations on cross-language support).
+_IGNORED_TRAILING_PATTERNS = [
+    re.compile(r"^Node\.js v\d+\.\d+\.\d+$"),
+]
+
 
 def _sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()
 
 
 def extract_stderr_signature(stderr: str) -> Optional[str]:
-    """Return the last non-empty line of stderr — reliably the `SomeError: message`
-    line of a traceback in Python/Node/Go/etc. Used by `verify` to check whether
-    the same failure is still present after a replay."""
+    """Return the `SomeError: message` line of a traceback, scanning from the
+    end of stderr. Handles two different conventions:
+
+    - Python: the error line IS the last line (e.g. `IndexError: ...`).
+    - Node/JS (and others): the error line is followed by indented `at ...`
+      stack-frame lines and a trailing runtime footer.
+
+    So: skip empty lines, skip known footer lines, skip lines that are
+    indented (stack-frame continuations in both conventions are indented;
+    the actual error line is not) — return the first line left standing.
+    This is a heuristic tuned against Python and Node's actual output
+    (verified manually against both demos), not a general parser for every
+    language's error format."""
     for line in reversed(stderr.splitlines()):
-        stripped = line.strip()
-        if stripped:
-            return stripped
+        if not line.strip():
+            continue
+        if line[0].isspace():
+            continue  # indented stack-frame line, not the error message itself
+        if any(pattern.match(line.strip()) for pattern in _IGNORED_TRAILING_PATTERNS):
+            continue
+        return line.strip()
     return None
 
 
