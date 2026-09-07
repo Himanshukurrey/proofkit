@@ -1,5 +1,6 @@
 {
   "name": "proofkit",
+  "description": "ProofKit: catch false \"I fixed it\" claims from AI coding agents.",
   "owner": {
     "name": "Himanshu Kurrey"
   },
