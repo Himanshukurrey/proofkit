@@ -1,0 +1,9 @@
+{
+  "name": "proofkit",
+  "description": "Catch false \"I fixed it\" claims from AI coding agents — capture a bug once, verify the fix anywhere.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Himanshu Kurrey"
+  },
+  "homepage": "https://github.com/Himanshukurrey/proofkit"
+}

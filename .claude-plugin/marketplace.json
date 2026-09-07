@@ -1,0 +1,13 @@
+{
+  "name": "proofkit",
+  "owner": {
+    "name": "Himanshu Kurrey"
+  },
+  "plugins": [
+    {
+      "name": "proofkit",
+      "source": ".",
+      "description": "Catch false \"I fixed it\" claims from AI coding agents — capture a bug once, verify the fix anywhere."
+    }
+  ]
+}

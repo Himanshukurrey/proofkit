@@ -26,6 +26,17 @@ pip install -e .
 
 (PyPI package coming once this has some real usage.)
 
+### Using it from Claude Code automatically
+
+The steps above give you the `proofkit` CLI — useful on its own, but it means *you* have to remember to run `capture` before asking Claude to fix something, and `verify` afterward. If you'd rather Claude Code drive this itself — capturing the bug before it starts, and verifying its own fix before telling you it's done — install the bundled plugin (requires the CLI above to already be installed and on your `PATH`):
+
+```
+/plugin marketplace add Himanshukurrey/proofkit
+/plugin install proofkit@proofkit
+```
+
+This adds a skill that Claude Code invokes on its own whenever you report a bug or ask it to fix a crash — see [`skills/proofkit/SKILL.md`](skills/proofkit/SKILL.md) for exactly what it tells Claude to do.
+
 ## Quickstart
 
 ```bash

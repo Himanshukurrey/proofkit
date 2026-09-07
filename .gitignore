@@ -9,4 +9,5 @@ build/
 .pytest_cache/
 .mypy_cache/
 *.proof
+.proofkit/
 .DS_Store
