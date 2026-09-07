@@ -2,4 +2,89 @@
 
 > Catch false "I fixed it" claims from AI coding agents — capture a bug once, verify the fix anywhere.
 
-🚧 Work in progress — full README coming once `capture`/`verify` are working end-to-end. See [PLAN.md](PLAN.md) for the build plan.
+An AI coding agent tells you it fixed the bug. Do you believe it because the tests it ran passed, or because you actually re-ran the original failure yourself? ProofKit is a small, focused CLI for the second option.
+
+```bash
+proofkit capture -o bug.proof -- python your_script.py --some-args
+# ... ask an agent to fix it, or fix it yourself ...
+proofkit verify bug.proof
+```
+
+![ProofKit demo: capture a bug, verify a claimed fix](demo/proofkit-demo.gif)
+
+## Why
+
+Git tells you what changed. CI tells you whether your test suite passed. Neither tells you whether the *specific thing that was broken* is actually fixed — and an agent optimizing for "the command exited 0" can satisfy that without truly fixing anything (wrapping a crash in a `try/except`, for instance). ProofKit adds the missing piece: capture the exact failing command once, and get an objective, agent-independent verdict on whether it still fails, later, on a different commit.
+
+## Install
+
+```bash
+git clone https://github.com/Himanshukurrey/proofkit
+cd proofkit
+pip install -e .
+```
+
+(PyPI package coming once this has some real usage.)
+
+## Quickstart
+
+```bash
+proofkit capture -o bug.proof -- python demo/top_n_buggy.py 5 3 9 1 7 5
+# Exit code:  1
+# Signature:  IndexError: list index out of range
+# Wrote bug.proof
+
+proofkit verify bug.proof
+# ⚠ Warning: replaying against the exact same git commit that was captured —
+# nothing has changed, so this verdict doesn't tell you whether a fix worked.
+
+# ... an agent (or you) fixes demo/top_n_buggy.py and commits it ...
+
+proofkit verify bug.proof
+# Replaying: python demo/top_n_buggy.py 5 3 9 1 7 5
+# Captured exit code:  1        Replayed exit code:  0
+# Captured signature:  IndexError: list index out of range
+# Replayed signature:  (none)
+#
+# FIXED
+```
+
+Try it yourself against the bundled demo bugs — one in Python, one in Node.js, same off-by-one mistake in both — see [`demo/README.md`](demo/README.md).
+
+## How it works
+
+**`proofkit capture -- <command>`** runs your command (no shell interpretation — `subprocess.run(..., shell=False)`, so there's no quoting inconsistency across machines) and records:
+
+- exit code, stdout, stderr, duration
+- the git commit, branch, and dirty flag, if you're inside a repo
+- OS/architecture/interpreter version
+- an **error signature** — the actual error line from stderr, correctly extracted even when a runtime prints stack frames or a footer after it (verified against both Python's and Node's real output — see [`src/proofkit/manifest.py`](src/proofkit/manifest.py))
+
+Everything gets zipped into a portable `.proof` file — a plain zip (`manifest.json` + `stdout.txt` + `stderr.txt`), inspectable with nothing but `unzip -l bug.proof`. No proprietary format, no account, no server.
+
+**`proofkit verify <bug.proof>`** re-runs the exact same command and compares the result against what was captured, reporting **STILL FAILING**, **FIXED**, or **CHANGED** (ambiguous — different error/exit code than either original state; needs a human to look).
+
+Before replaying, `verify` checks whether the current git commit matches the one recorded at capture time. If they're identical, it refuses to give a verdict (unless you pass `--allow-same-commit`) — because "verifying" against literally unchanged code would silently make "nothing happened" look meaningful. This is the guardrail that makes the whole tool trustworthy rather than theater.
+
+## Limitations (read this before trusting it blindly)
+
+- **The verdict is a heuristic, not a full functional check.** It confirms the *specific captured crash* is gone — not that the feature is correct. An agent that hides a bug behind `try/except: return None` instead of fixing the actual logic will read as FIXED. Pair this with your real test suite; don't use it as a replacement for one.
+- **Redaction is name-pattern based, not a secrets scanner.** `--with-env` redacts environment variables whose *name* looks sensitive (`KEY`, `TOKEN`, `SECRET`, etc.) — a variable with an innocuous name holding a real secret in its *value* will not be caught. Review any artifact before sharing it.
+- **No sandboxing.** `capture`/`verify` run your command directly on your machine, exactly like typing it yourself.
+- **No path portability guarantees.** If your command references an absolute path, replaying on a different machine/checkout may simply fail to find it. Convention: capture from your repo root using relative paths.
+- **macOS/Linux only** — untested on Windows.
+- Output is buffered in memory and truncated past 10MB; no live/streaming output during capture.
+
+## Roadmap
+
+- GitHub Action / issue integration (attach a verified reproduction directly to an issue)
+- Sandboxed execution
+- An open proof-format spec, so other tools (test runners, CI systems, IDEs) can produce/consume `.proof` artifacts directly
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). `main` is protected — changes land through reviewed pull requests.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).
