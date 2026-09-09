@@ -28,7 +28,7 @@ pip install -e .
 
 ### Using it from Claude Code automatically
 
-The steps above give you the `proofkit` CLI — useful on its own, but it means *you* have to remember to run `capture` before asking Claude to fix something, and `verify` afterward. If you'd rather Claude Code drive this itself — capturing the bug before it starts, and verifying its own fix before telling you it's done — install the bundled plugin (requires the CLI above to already be installed and on your `PATH`):
+The steps above give you the `proofkit` CLI — useful on its own, but it means *you* have to remember to run `capture` before asking Claude to fix something, and `verify` afterward. If you'd rather Claude Code drive this itself — capturing the bug before it starts, and verifying its own fix before telling you it's done — install the bundled plugin (requires the CLI above to already be installed and on your `PATH`). **Run this from the terminal CLI, not the VSCode extension** — `/plugin` commands aren't available there yet ([#5](https://github.com/Himanshukurrey/proofkit/issues/5)):
 
 ```
 /plugin marketplace add Himanshukurrey/proofkit
