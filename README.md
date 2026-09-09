@@ -19,12 +19,16 @@ Git tells you what changed. CI tells you whether your test suite passed. Neither
 ## Install
 
 ```bash
-git clone https://github.com/Himanshukurrey/proofkit
-cd proofkit
-pip install -e .
+pip install proofkit
 ```
 
-(PyPI package coming once this has some real usage.)
+That's the whole install for most people. If you want to hack on ProofKit itself instead, clone it and install in editable mode:
+
+```bash
+git clone https://github.com/Himanshukurrey/proofkit
+cd proofkit
+pip install -e ".[dev]"
+```
 
 ### Using it from Claude Code automatically
 
