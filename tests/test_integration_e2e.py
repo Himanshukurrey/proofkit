@@ -1,6 +1,7 @@
 """End-to-end test driving the real CLI (via Click's CliRunner) against the
 actual demo bug — exercises the full capture -> verify loop with a real
 subprocess execution underneath, not mocks."""
+
 import os
 import sys
 from pathlib import Path

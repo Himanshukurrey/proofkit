@@ -5,15 +5,16 @@ there's no shell-quoting inconsistency across machines/default shells.
 If a user needs `&&`/pipes, they wrap it themselves:
 `proofkit capture -- bash -c "cmd1 && cmd2"`.
 """
+
 import subprocess
 import time
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 
 @dataclass
 class ExecutionResult:
-    argv: List[str]
+    argv: list[str]
     exit_code: Optional[int]
     stdout: str
     stderr: str
@@ -22,7 +23,7 @@ class ExecutionResult:
     launch_error: Optional[str]
 
 
-def run_command(argv: List[str], cwd: str, timeout: int) -> ExecutionResult:
+def run_command(argv: list[str], cwd: str, timeout: int) -> ExecutionResult:
     """Run `argv` in `cwd`, capturing stdout/stderr/exit code. Never raises for a normal failure."""
     start = time.monotonic()
     try:
@@ -31,8 +32,7 @@ def run_command(argv: List[str], cwd: str, timeout: int) -> ExecutionResult:
             cwd=cwd,
             shell=False,
             stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
             timeout=timeout,
         )

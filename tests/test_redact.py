@@ -1,4 +1,4 @@
-from proofkit.redact import redact_env, REDACTED_VALUE
+from proofkit.redact import REDACTED_VALUE, redact_env
 
 
 def test_redacts_names_matching_secret_patterns():

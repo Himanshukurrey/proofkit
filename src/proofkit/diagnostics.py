@@ -5,9 +5,10 @@ behavior (see PLAN.md / README Limitations) — NOT verified on a real Windows
 machine, since none was available while building this. Treat this as a
 considered guess at the most common failure mode, not a confirmed fix.
 """
+
 import platform
 import shutil
-from typing import List, Optional
+from typing import Optional
 
 # Extensions that require a command interpreter (cmd.exe) to run and can't be
 # launched directly via subprocess's shell=False on Windows — this is the
@@ -17,7 +18,7 @@ from typing import List, Optional
 _SHELL_REQUIRED_EXTENSIONS = (".cmd", ".bat", ".ps1")
 
 
-def launch_error_hint(argv: List[str]) -> Optional[str]:
+def launch_error_hint(argv: list[str]) -> Optional[str]:
     """If launching `argv` failed and it looks like the Windows .cmd/.bat shim
     issue, return an actionable hint. Returns None otherwise (including on
     non-Windows platforms, where this doesn't apply)."""

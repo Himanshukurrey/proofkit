@@ -1,4 +1,5 @@
 """Collect basic, non-sensitive platform information for a manifest."""
+
 import platform
 import sys
 from typing import TypedDict

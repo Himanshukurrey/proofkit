@@ -1,9 +1,10 @@
 """Build and serialize the proof manifest — the JSON record inside a .proof archive."""
+
 import hashlib
 import re
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from proofkit import __version__
 from proofkit.gitinfo import GitInfo
@@ -78,8 +79,8 @@ def build_manifest(
     platform_info: PlatformInfo,
     git_info: GitInfo,
     env_captured: bool,
-    env_vars: Dict[str, str],
-    redacted_keys: List[str],
+    env_vars: dict[str, str],
+    redacted_keys: list[str],
     note: Optional[str] = None,
 ) -> tuple:
     """Assemble the manifest dict matching the schema documented in PLAN.md.
@@ -91,7 +92,7 @@ def build_manifest(
     stdout, stdout_truncated = _truncate(execution.stdout)
     stderr, stderr_truncated = _truncate(execution.stderr)
 
-    manifest: Dict[str, Any] = {
+    manifest: dict[str, Any] = {
         "proofkit_version": __version__,
         "capture_id": str(uuid.uuid4()),
         "created_at": datetime.now(timezone.utc).isoformat(),

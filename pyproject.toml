@@ -29,6 +29,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
+    "ruff>=0.6",
 ]
 
 [project.urls]
@@ -43,3 +44,15 @@ testpaths = ["tests"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/proofkit"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 110
+
+[tool.ruff.lint]
+# Deliberately curated, not "ALL" — E/F/I catch real mistakes (unused
+# imports, undefined names, import order); UP keeps syntax modern without
+# breaking the py39 floor. Skipped DTZ (datetime timezone-awareness) and
+# FA (future-annotations) as too pedantic for this codebase's actual needs
+# right now — reconsider if the project grows.
+select = ["E", "F", "I", "UP"]

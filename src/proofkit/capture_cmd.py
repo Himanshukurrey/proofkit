@@ -1,9 +1,10 @@
 """Implementation of `proofkit capture`: run a command, build its manifest,
 and package everything into a portable .proof archive."""
+
 import os
 import sys
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 import click
 
@@ -22,7 +23,7 @@ def _default_output_path() -> str:
 
 
 def run_capture(
-    argv: List[str],
+    argv: list[str],
     output_path: Optional[str],
     timeout: int,
     with_env: bool,

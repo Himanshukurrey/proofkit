@@ -3,6 +3,7 @@
 Usage: python top_n_buggy.py <item> <item> ... <n>
 The last argument is n; everything before it is the list of items.
 """
+
 import sys
 
 

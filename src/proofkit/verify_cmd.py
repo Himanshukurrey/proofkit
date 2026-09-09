@@ -7,6 +7,7 @@ actually work" use case trustworthy rather than theater: without it,
 running verify against completely unchanged code could still print a
 verdict, silently making "nothing happened" look meaningful.
 """
+
 import os
 import sys
 

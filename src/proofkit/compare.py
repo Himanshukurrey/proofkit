@@ -5,6 +5,7 @@ the README. It answers "is the same crash still happening", not "is the
 feature correct". An agent that hides a bug behind a try/except instead
 of fixing it will make this report FIXED. Pair with a real test suite.
 """
+
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional

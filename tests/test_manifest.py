@@ -1,4 +1,3 @@
-from proofkit.gitinfo import collect_git_info
 from proofkit.manifest import build_manifest, extract_stderr_signature
 from proofkit.platforminfo import collect_platform_info
 from proofkit.runner import ExecutionResult

@@ -6,8 +6,8 @@ key would slip through. Document this limitation loudly in the README —
 don't let users believe this is safe to point at anything sensitive
 without reviewing the artifact themselves first.
 """
+
 import re
-from typing import Dict, Tuple
 
 # Case-insensitive substrings that mark a variable name as likely-sensitive.
 SECRET_KEY_PATTERNS = [
@@ -27,9 +27,9 @@ REDACTED_VALUE = "<redacted>"
 _pattern_re = re.compile("|".join(re.escape(p) for p in SECRET_KEY_PATTERNS), re.IGNORECASE)
 
 
-def redact_env(env: Dict[str, str]) -> Tuple[Dict[str, str], list]:
+def redact_env(env: dict[str, str]) -> tuple[dict[str, str], list]:
     """Return (safe_env, redacted_keys) — values whose *name* looks sensitive are replaced."""
-    safe_env: Dict[str, str] = {}
+    safe_env: dict[str, str] = {}
     redacted_keys = []
     for key, value in env.items():
         if _pattern_re.search(key):

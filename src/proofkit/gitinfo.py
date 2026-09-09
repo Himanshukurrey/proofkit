@@ -3,6 +3,7 @@
 Deliberately shallow: a commit hash + dirty flag is enough for verify's
 same-commit guardrail. No diff content is captured in v1.
 """
+
 import subprocess
 from typing import Optional, TypedDict
 
