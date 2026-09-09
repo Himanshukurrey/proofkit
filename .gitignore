@@ -11,3 +11,4 @@ build/
 *.proof
 .proofkit/
 .DS_Store
+PLAN.md
