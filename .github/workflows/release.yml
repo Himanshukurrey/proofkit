@@ -1,0 +1,56 @@
+name: Publish to PyPI
+
+# Fires when a GitHub Release is published (gh release create / the "Publish
+# release" button) — NOT on every tag push, so tagging alone can't trigger
+# an accidental publish. Uses PyPI Trusted Publishing (OIDC): no API token
+# stored as a secret. One-time setup required on PyPI's side before this can
+# actually work — see the "pending publisher" step in the project README /
+# CONTRIBUTING before relying on this for a real release.
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tooling
+        run: pip install build
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Sanity-check the built wheel actually installs and runs
+        run: |
+          python -m venv /tmp/proofkit-release-check
+          /tmp/proofkit-release-check/bin/pip install dist/*.whl
+          /tmp/proofkit-release-check/bin/proofkit --version
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/proofkit/
+    permissions:
+      id-token: write # required for PyPI Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

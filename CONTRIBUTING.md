@@ -7,11 +7,14 @@ Thanks for considering a contribution. Here's the workflow.
 1. **Fork the repo** and clone your fork locally.
 2. **Create a branch** for your change: `git checkout -b fix/short-description`.
 3. **Make your change**, with tests if you're changing behavior.
-4. **Run the test suite** locally before opening a PR:
+4. **Run the test suite and linter** locally before opening a PR:
    ```bash
    pip install -e ".[dev]"
    pytest
+   ruff check .
+   ruff format --check .
    ```
+   CI runs the same checks across Linux, Windows, and macOS, on Python 3.9 and 3.12 — matching locally first saves a round trip.
 5. **Open a pull request** against `main`. Fill in the PR template — what the change does, why, and how you tested it.
 6. A maintainer will review it. Please be patient; this is currently maintained part-time.
 
@@ -32,3 +35,19 @@ Open an issue describing what you expected vs. what happened, your OS/Python ver
 ## Code of conduct
 
 Be respectful. Disagreements about code are fine; personal attacks aren't.
+
+## Releasing (maintainer only)
+
+1. Bump `version` in `pyproject.toml`.
+2. `git tag vX.Y.Z && git push origin vX.Y.Z`
+3. `gh release create vX.Y.Z --generate-notes`
+
+Publishing that release automatically triggers `.github/workflows/release.yml`, which builds the package, sanity-checks that the wheel actually installs and `proofkit --version` runs, and publishes to PyPI via [Trusted Publishing](https://docs.pypi.org/trusted-publishers/) (no stored API token).
+
+**One-time setup required before this works for the first time**, done once on pypi.org by whoever owns the PyPI project: create a PyPI account if needed, then add a "pending publisher" for a project named `proofkit` under Account Settings → Publishing, with:
+- Owner: `Himanshukurrey`
+- Repository: `proofkit`
+- Workflow name: `release.yml`
+- Environment name: `pypi`
+
+This reserves the trust relationship before the package exists on PyPI, so the very first `gh release create` can publish successfully rather than needing a manual first upload.
