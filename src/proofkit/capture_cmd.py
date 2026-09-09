@@ -7,6 +7,7 @@ from typing import List, Optional
 
 import click
 
+from proofkit.diagnostics import launch_error_hint
 from proofkit.gitinfo import collect_git_info
 from proofkit.manifest import build_manifest
 from proofkit.packaging import write_proof_archive
@@ -34,6 +35,9 @@ def run_capture(
 
     if execution.launch_error:
         click.secho(f"Could not launch command: {execution.launch_error}", fg="red")
+        hint = launch_error_hint(argv)
+        if hint:
+            click.secho(hint, fg="yellow")
         sys.exit(1)
     if execution.timed_out:
         click.secho(f"Command timed out after {timeout}s", fg="yellow")

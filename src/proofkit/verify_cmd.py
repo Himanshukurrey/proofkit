@@ -13,6 +13,7 @@ import sys
 import click
 
 from proofkit.compare import Verdict, compare
+from proofkit.diagnostics import launch_error_hint
 from proofkit.gitinfo import collect_git_info
 from proofkit.packaging import read_proof_archive
 from proofkit.runner import run_command
@@ -51,6 +52,9 @@ def run_verify(proof_path: str, cwd: str, allow_same_commit: bool) -> None:
 
     if execution.launch_error:
         click.secho(f"Could not launch command: {execution.launch_error}", fg="red")
+        hint = launch_error_hint(argv)
+        if hint:
+            click.secho(hint, fg="yellow")
         sys.exit(1)
 
     result = compare(

@@ -22,9 +22,6 @@ SECRET_KEY_PATTERNS = [
     "PRIVATE",
 ]
 
-# Always recorded even when --with-env is off; these are safe/context-useful.
-SAFE_ALLOWLIST = {"PATH", "LANG", "SHELL"}
-
 REDACTED_VALUE = "<redacted>"
 
 _pattern_re = re.compile("|".join(re.escape(p) for p in SECRET_KEY_PATTERNS), re.IGNORECASE)
