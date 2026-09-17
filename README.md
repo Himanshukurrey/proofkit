@@ -22,7 +22,11 @@ Git tells you what changed. CI tells you whether your test suite passed. Neither
 pip install proofkit
 ```
 
-That's the whole install for most people. If you want to hack on ProofKit itself instead, clone it and install in editable mode:
+That's the whole install for most people — here it is for real, from PyPI, in a fresh environment:
+
+![Installing ProofKit from PyPI and running a real capture/verify](demo/proofkit-install-demo.gif)
+
+If you want to hack on ProofKit itself instead, clone it and install in editable mode:
 
 ```bash
 git clone https://github.com/Himanshukurrey/proofkit
