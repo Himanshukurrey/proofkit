@@ -33,7 +33,7 @@ jobs:
           /tmp/proofkit-release-check/bin/pip install dist/*.whl
           /tmp/proofkit-release-check/bin/proofkit --version
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist/
