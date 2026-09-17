@@ -1,0 +1,53 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. The fastest way to get this looked at: if you have ProofKit installed already, run
+        `proofkit capture -- <the failing command>` and attach the resulting `.proof` file below — it's exactly
+        the problem this project exists to solve, and it saves everyone the "can you reproduce it?" back-and-forth.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what actually happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: Exact command you ran
+      placeholder: "proofkit capture -- npm test"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proof-file
+    attributes:
+      label: .proof file (if you have one)
+      description: Drag and drop the `.proof` file here, or paste the relevant output if you don't have one.
+
+  - type: input
+    id: version
+    attributes:
+      label: ProofKit version
+      description: Output of `proofkit --version`
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows (PowerShell)
+        - Windows (cmd.exe)
+        - WSL
+    validations:
+      required: true
