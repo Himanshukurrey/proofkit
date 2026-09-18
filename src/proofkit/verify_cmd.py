@@ -32,6 +32,20 @@ def run_verify(proof_path: str, cwd: str, allow_same_commit: bool) -> None:
     replay_cwd = cwd or os.getcwd()
     argv = manifest["command"]["argv"]
 
+    captured_cwd = manifest.get("command", {}).get("cwd")
+    if cwd is None and captured_cwd and os.path.abspath(replay_cwd) != captured_cwd:
+        click.secho(
+            f"⚠ Warning: replaying from {os.path.abspath(replay_cwd)}, but this was "
+            f"captured from {captured_cwd}. If the command uses relative paths, "
+            "they can resolve against completely different (or missing) files here — "
+            "which can make the verdict below misleadingly report FIXED when the "
+            "command actually just failed to find the right file, not because the "
+            f"bug is gone. Pass --cwd {captured_cwd!r} to replay from the original "
+            "directory, or a different --cwd if you're deliberately verifying "
+            "elsewhere and know the relative paths still resolve correctly there.",
+            fg="yellow",
+        )
+
     captured_git = manifest.get("git", {})
     if captured_git.get("is_repo"):
         current_git = collect_git_info(replay_cwd)

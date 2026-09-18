@@ -6,6 +6,7 @@ If a user needs `&&`/pipes, they wrap it themselves:
 `proofkit capture -- bash -c "cmd1 && cmd2"`.
 """
 
+import os
 import subprocess
 import time
 from dataclasses import dataclass
@@ -15,6 +16,7 @@ from typing import Optional
 @dataclass
 class ExecutionResult:
     argv: list[str]
+    cwd: str
     exit_code: Optional[int]
     stdout: str
     stderr: str
@@ -25,6 +27,7 @@ class ExecutionResult:
 
 def run_command(argv: list[str], cwd: str, timeout: int) -> ExecutionResult:
     """Run `argv` in `cwd`, capturing stdout/stderr/exit code. Never raises for a normal failure."""
+    abs_cwd = os.path.abspath(cwd)
     start = time.monotonic()
     try:
         completed = subprocess.run(
@@ -39,6 +42,7 @@ def run_command(argv: list[str], cwd: str, timeout: int) -> ExecutionResult:
         duration = time.monotonic() - start
         return ExecutionResult(
             argv=argv,
+            cwd=abs_cwd,
             exit_code=completed.returncode,
             stdout=completed.stdout,
             stderr=completed.stderr,
@@ -50,6 +54,7 @@ def run_command(argv: list[str], cwd: str, timeout: int) -> ExecutionResult:
         duration = time.monotonic() - start
         return ExecutionResult(
             argv=argv,
+            cwd=abs_cwd,
             exit_code=None,
             stdout=(e.stdout or ""),
             stderr=(e.stderr or ""),
@@ -62,6 +67,7 @@ def run_command(argv: list[str], cwd: str, timeout: int) -> ExecutionResult:
         duration = time.monotonic() - start
         return ExecutionResult(
             argv=argv,
+            cwd=abs_cwd,
             exit_code=None,
             stdout="",
             stderr="",

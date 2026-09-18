@@ -96,7 +96,7 @@ def build_manifest(
         "proofkit_version": __version__,
         "capture_id": str(uuid.uuid4()),
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "command": {"argv": execution.argv},
+        "command": {"argv": execution.argv, "cwd": execution.cwd},
         "execution": {
             "exit_code": execution.exit_code,
             "duration_seconds": round(execution.duration_seconds, 3),

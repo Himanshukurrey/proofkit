@@ -107,7 +107,7 @@ Before replaying, `verify` checks whether the current git commit matches the one
 - **The verdict is a heuristic, not a full functional check.** It confirms the *specific captured crash* is gone — not that the feature is correct. An agent that hides a bug behind `try/except: return None` instead of fixing the actual logic will read as FIXED. Pair this with your real test suite; don't use it as a replacement for one.
 - **Redaction is name-pattern based, not a secrets scanner.** `--with-env` redacts environment variables whose *name* looks sensitive (`KEY`, `TOKEN`, `SECRET`, etc.) — a variable with an innocuous name holding a real secret in its *value* will not be caught. Review any artifact before sharing it.
 - **No sandboxing.** `capture`/`verify` run your command directly on your machine, exactly like typing it yourself.
-- **No path portability guarantees.** If your command references an absolute path, replaying on a different machine/checkout may simply fail to find it. Convention: capture from your repo root using relative paths.
+- **No path portability guarantees.** If your command references an absolute path, replaying on a different machine/checkout may simply fail to find it. Convention: capture from your repo root using relative paths. `verify` records the directory `capture` ran from and warns if you replay from somewhere else without passing `--cwd` — worth reading that warning carefully: a relative path resolving against the wrong location can make the verdict misleadingly say FIXED (the command "changed" only because it failed to find the right file, not because the bug is gone).
 - Output is buffered in memory and truncated past 10MB; no live/streaming output during capture.
 
 ### Windows

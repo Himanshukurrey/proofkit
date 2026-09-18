@@ -73,6 +73,7 @@ def test_extract_signature_from_empty_stderr_returns_none():
 def test_build_manifest_smoke():
     execution = ExecutionResult(
         argv=["python", "demo/top_n_buggy.py", "5"],
+        cwd="/repo",
         exit_code=1,
         stdout="",
         stderr=PYTHON_STDERR,
@@ -90,6 +91,7 @@ def test_build_manifest_smoke():
     )
 
     assert manifest["execution"]["exit_code"] == 1
+    assert manifest["command"]["cwd"] == "/repo"
     assert manifest["output"]["stderr_signature"] == "IndexError: list index out of range"
     assert manifest["environment"]["env_captured"] is False
     assert stdout == ""
